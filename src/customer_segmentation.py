@@ -1,26 +1,35 @@
 import pandas as pd
 import numpy as np
+from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
-from pandas import Series,DataFrame
 from kmodes import kmodes
 from kmodes import kprototypes
 from datetime import datetime
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
+from sklearn import decomposition, datasets
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 
 # read in data
 dfWorking = pd.read_csv('../data/USsessions.csv')
+
+
+'''Data Cleaning'''
 
 # clean columns
 dfWorking['time_on_site'] = dfWorking['time_on_site'] / 60
 dfWorking['revenue'] = dfWorking['revenue'] / (10**6)
 dfWorking['social_referral'] = dfWorking.social_referral.map(dict(Yes=1, No=0))
 dfWorking['device'] = dfWorking.device.map(dict(desktop=0, mobile=1, tablet=1))
+# dfWorking['new_visitor'] = dfWorking.num_visits.where(dfWorking.num_visits<=1.0, 0)
+# dfWorking.new_visitor= dfWorking.new_visitor.astype(int)
+dfWorking['time_of_visit'] = pd.to_datetime(dfWorking['time_of_visit'],unit='s')
 dfWorking = dfWorking.fillna(0)
 dfWorking = dfWorking.drop(columns=['date'])
 
 # adjust time of visit to local time
-PST = ['Pleasanton', 'Tigard', 'Westlake Village', 'Hayward', 'Redwood City', 'San Mateo', 'Santa Ana', 'Bellevue', 'Fremont', 'Palo Alto', 'Cupertino', 'San Bruno', 'Sunnyvale', 'Milpitas', 'San Jose', 'Bothell', 'Irvine', 'Portland', 'Oakland',
+PST = ['Pleasanton', 'Tigard', 'Westlake Village', 'Hayward', 'Redwood City', 'San Mateo', 'Santa Ana', 'Bellevue', 'Fremont', 'Palo      Alto', 'Cupertino', 'San Bruno', 'Sunnyvale', 'Milpitas', 'San Jose', 'Bothell', 'Irvine', 'Portland', 'Oakland',
 'Berkeley', 'Fresno', 'South San Francisco', 'Anaheim', 'Vancouver', 'San Francisco', 'Mountain View', 'Los Angeles', 'Kirkland', 'Santa Clara', 'Salem', 'Seattle', 'San Diego', 'Sacramento', 'Bellingham', 'Lake Oswego']
 
 CST = ['Richardson', 'Lewisville', 'North Richland Hills', 'Pryor', 'Carrollton', 'Shiocton', 'Oshkosh', 'Evanston', 'McAllen',
@@ -34,153 +43,157 @@ EST = ['Goose Creek','Akron', 'Wellesley', 'Cincinnati', 'Chamblee', 'Lenoir', '
 def offset(city):
     return 3600 * (-8 * (city in PST) - 7 * (city in MST) - 6 * (city in CST)  - 5 * (city in EST))
 
-# POSIX to datetime
 dfWorking['local_time'] = pd.to_datetime(dfWorking['city'].map(offset) + dfWorking['time_of_visit'], unit='s')
-dfWorking['time_of_visit'] = pd.to_datetime(dfWorking['time_of_visit'],unit='s')
 
-# create 'time of day' categorical column from local time
+# create 'time of day' categories from 'local time'
 dfWorking = dfWorking.assign(time_of_day=pd.cut(dfWorking.local_time.dt.hour,[0,6,12,18,24],labels=['Night','Morning','Afternoon','Evening']))
 
-# features for clustering
-X = dfWorking[['num_visits', 'social_referral', 'device']]
+# get dummies for 'time of day'
+dftod = pd.get_dummies(dfWorking["time_of_day"])
 
 # get dummies for 'traffic medium'
 dfMediums = pd.get_dummies(dfWorking["traffic_medium"])
-#combine two paid traffic columns
+# combine two paid traffic columns
 dfMediums['paid'] = dfMediums['cpc']+dfMediums['cpm']
 dfMediums = dfMediums.drop(columns=['cpc', 'cpm'])
 # combine two traffic link columns
 dfMediums['referral_affiliate'] = dfMediums['referral']+dfMediums['affiliate']
 dfMediums = dfMediums.drop(columns=['referral', 'affiliate'])
 
-# get dummies for time of day
-dftod = pd.get_dummies(dfWorking["time_of_day"])
+# features for clustering
+X = dfWorking[['num_visits', 'device']]
 
-# join X and dummied features
+# join X and dummy features for final features matrix
 dfSessions =  pd.concat([X, dfMediums, dftod], axis=1)
 
-# normalize
+# standardize
 scaler = StandardScaler()
 scaled = scaler.fit_transform(dfSessions)
 
-# clustering k-prototypes (mixed numeric and categorical features)
+'''Visualize Feature Data'''
 
+# PCA
+
+# pca = decomposition.PCA(n_components=10, copy=True, whiten=False, svd_solver="auto",
+#           tol=0.0, iterated_power="auto", random_state=None)
+# sessionsPCA = pca.fit_transform(scaled)
+
+# def scree_plot(pca):
+#     vals = pca.explained_variance_ratio_
+#     plt.figure(figsize=(8, 4))
+#     cum_var = np.cumsum(vals)
+#     ax = plt.subplot(111)
+#
+#     ax.plot(range(len(vals) + 1), np.insert(cum_var, 0, 0), color = 'r', marker = 'o')
+#     ax.bar(range(len(vals)), vals, alpha = 0.8)
+#
+#     ax.axhline(0.9, color = 'g', linestyle = "--")
+#     ax.set_xlabel("Principal Component")
+#     ax.set_ylabel("Variance Explained (%)")
+#
+#     plt.title("Scree Plot for the Sessions Dataset")
+#
+# scree_plot(pca)
+# plt.show()
+#  7 components explains >90% variance
+
+# pca = decomposition.PCA(n_components=3)
+#
+# # Turn the dummified df into two columns with PCA
+# plot_columns = pca.fit_transform(scaled)
+#
+# # Plot based on the two dimensions, and shade by cluster label
+# fig = plt.figure()
+# ax = plt.axes(projection='3d')
+# ax.scatter3D(plot_columns[:,0], plot_columns[:,1], plot_columns[:,2], c=plot_columns[:,2], cmap='Greens')
+# plt.title('PCA (3 Components) Feature Visualization')
+# plt.savefig('3D_PCA.png')
+# plt.show()
+
+
+'''Clustering'''
+
+# k-prototypes (for mixed numeric and categorical features)
 init = 'Huang' # can be 'Cao', 'Huang' or 'random'
 n_clusters = 8
 max_iter = 100
-
 kproto = kprototypes.KPrototypes(n_clusters=n_clusters,init=init, max_iter=max_iter)
-# k_prototypes(X, categorical, n_clusters, max_iter, num_dissim,
-# cat_dissim, gamma, init, n_init, verbose, random_state, n_jobs)
 
-    # cluster_centroids_ : array, [n_clusters, n_features]
-    #     Categories of cluster centroids
-    # labels_ :
-    #     Labels of each point
-    # cost_ : float
-    #     Clustering cost, defined as the sum distance of all points to
-    #     their respective cluster centroids.
-    # n_iter_ : int
-    #     The number of iterations the algorithm ran for.
-    # gamma : float
-    #     The (potentially calculated) weighing factor.
 # fit/predict
 categoricals_indicies = [1,2,3,4,5,6,7,8,9]
-labels = kproto.fit_predict(scaled,categorical=categoricals_indicies)
+kproto_labels = kproto.fit_predict(scaled,categorical=categoricals_indicies)
 
 
-# Elbow plot
-# distorsions = []
-# for k in range(2, 10):
-#     kprot = kprototypes.KPrototypes(n_clusters=k)
-#     kprot.fit(scaled, categorical=categoricals_indicies)
-#     distorsions.append(kprot.cost_)
-#
-# fig = plt.figure(figsize=(15, 5))
-# plt.plot(range(2, 10), distorsions)
-# plt.grid(True)
-# plt.title('Elbow curve')
-# plt.savefig('elbow_plot.png')
-# plt.show()
+# Elbow plot - Kproto
+distorsions = []
+for k in range(2, 16):
+    kprot = kprototypes.KPrototypes(n_clusters=k)
+    kprot.fit(scaled, categorical=categoricals_indicies)
+    distorsions.append(kprot.cost_)
+fig = plt.figure(figsize=(15, 5))
+plt.plot(range(2, 16), distorsions)
+plt.grid(True)
+plt.title('Elbow curve')
+plt.savefig('16_elbow_plot.png')
+plt.show()
 
-# Silouette Score
-# def get_silhouette_score(nclust):
+#Silouette Score - Kproto
+# def kproto_silhouette_score(nclust):
 #     kprot = kprototypes.KPrototypes(nclust)
 #     labels = kprot.fit_predict(scaled,categorical=categoricals_indicies)
 #     sil_avg = silhouette_score(scaled, labels)
 #     return sil_avg
+# sil_scores = [kproto_silhouette_score(i) for i in range(2,12)]
+# plt.plot(range(2,12), sil_scores)
+# plt.xlabel('K')
+# plt.ylabel('Silhouette Score')
+# plt.title('Silhouette Score vs K')
+# plt.savefig('12_silouette_score.png')
+# plt.show()
 
 # looks like ideal k = 8
 
 
-# sil_scores = [get_silhouette_score(i) for i in range(2,10)]
+# Kmodes
+
+# km = kmodes.KModes(n_clusters=7, init='Huang', n_init=5, verbose=0)
+# clusters = km.fit_predict(x)
+# dfSessions['clusters'] = clusters
+
+# Elbow plot - Kmodes
+# distorsions = []
+# for k in range(2, 20):
+#     km = kmodes.KModes(n_clusters=k, init='Huang', n_init=5, verbose=0)
+#     km.fit_predict(dfSessions)
+#     distorsions.append(km.cost_)
+# fig = plt.figure(figsize=(15, 5))
+# plt.plot(range(2, 20), distorsions)
+# plt.grid(True)
+# plt.title('Elbow curve')
+# plt.savefig('kmodes_elbow_plot.png')
+# plt.show()
+
+
+# Silouette score - Kmodes
+# def kmodes_silhouette_score(nclust):
+#     x = dfSessions
+#     km = kmodes.KModes(n_clusters=nclust, init='Huang', n_init=5, verbose=0)
+#     clusters = km.fit_predict(x)
+#     sil_avg = silhouette_score(x, clusters)
+#     return sil_avg
+# sil_scores = [kmodes_silhouette_score(i) for i in range(2,10)]
 # plt.plot(range(2,10), sil_scores)
 # plt.xlabel('K')
 # plt.ylabel('Silhouette Score')
 # plt.title('Silhouette Score vs K')
-# plt.savefig('silouette_score.png')
+# plt.savefig('kmodes_silouette_score.png')
 # plt.show()
+
 
 
 # copy features datafrme, add column with predicted cluster labels
-dfcopy = dfSessions
-dfcopy['cluster'] = labels
+dfcopy = dfSessions.copy(deep=True)
+dfcopy['kproto_cluster'] = kproto_labels
 
-# interpret clusters by taking mean
-means = dfcopy.groupby(['cluster']).mean()
-
-# Scree plot
-# Silouette Score
-# Gap
-
-#
-#
-#
-#
-#
-#
-#
-# # ex 2
-#
-# kproto = KPrototypes(n_clusters=15, init='Cao', verbose=2)
-# clusters = kproto.fit_predict(X, categorical=[1, 2])
-# # Print cluster centroids of the trained model.
-# print(kproto.cluster_centroids_)
-# # Print training statistics
-# print(kproto.cost_)
-# print(kproto.n_iter_)
-# for s, c in zip(syms, clusters):
-#     print("Result: {}, cluster:{}".format(s, c))
-# # Plot the results
-# for i in set(kproto.labels_):
-#     index = kproto.labels_ == i
-#     plt.plot(X[index, 0], X[index, 1], 'o')
-#     plt.suptitle('Data points categorized with category score', fontsize=18)
-#     plt.xlabel('Category Score', fontsize=16)
-#     plt.ylabel('Category Type', fontsize=16)
-# plt.show()
-# # Clustered result
-# fig1, ax3 = plt.subplots()
-# scatter = ax3.scatter(syms, clusters, c=clusters, s=50)
-# ax3.set_xlabel('Data points')
-# ax3.set_ylabel('Cluster')
-# plt.colorbar(scatter)
-# ax3.set_title('Data points classifed according to known centers')
-# plt.show()
-# result = zip(syms, kproto.labels_)
-# sortedR = sorted(result, key=lambda x: x[1])
-# print(sortedR)
-#
-#
-# # silhouette score
-# from sklearn.metrics import silhouette_score
-# def get_silhouette_score(nclust):
-#     km = KMeans(nclust)
-#     km.fit(X)
-#     sil_avg = silhouette_score(X, km.labels_)
-#     return sil_avg
-# sil_scores = [get_silhouette_score(i) for i in range(2,10)]
-# plt.plot(range(2,10), sil_scores)
-# plt.xlabel('K')
-# plt.ylabel('Silhouette Score')
-# plt.title('Silhouette Score vs K')
+# # interpret clusters by taking mean
+means = dfcopy.groupby(['kproto_cluster']).mean()
