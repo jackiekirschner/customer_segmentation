@@ -3,16 +3,17 @@
 
 <img src= 'images/merch_store.png'>
 
+### Motivation
+Marketing is about reaching the right people, at the right time, in the right place. It's a never-ending process of learning more about potential customers and tailoring how and when you reach them. Understanding how users find your site, when they visit, and what device they use can help optimize media planning and increase ROI.
+
 ### Question
-Can website sessions be clustered by how and when users arrive at the site? If so, how can clusters inform marketing decisions?  
+Can clustering be used to segment website traffic into useful personas? If so, how can the clusters inform marketing decisions?  
 
 ### Data
-I used data from the Google Merchandise online store. https://shop.googlemerchandisestore.com/ Google Analytics data from August 1, 2016 - August 1, 2017 (>200,000 web sessions) is publicly available on Google Big Query. I used SQL to query 4 months of website sessions, where one row represents one session.
+Data for this project came from the [Google Merchandise online store](https://shop.googlemerchandisestore.com/) and was retrieved from [Google Big Query](https://cloud.google.com/bigquery/). One year of data (>200,000 web sessions) is publicly available as a sample dataset for potential Google Big Query customers to explore. I used SQL to query 4 months of website sessions, where one row represents one session.
 
 <img src= 'images/big_query.png'>
-```sql
-sql query here
-```
+
 
 ### Features
 * Number of site visits – new or returning visitor
@@ -22,12 +23,14 @@ sql query here
 * Time of day – morning, afternoon, evening or night
 
 ### EDA
+<img src= 'images/EDA_query.png' width="800">
 
-Counts of Features being clustered
-unique traffic source for referral/affiliate
+<img src= 'images/EDA_medium.png' width="400">
+<img src= 'images/EDA_dtof.png' width="400" >
+
 
 ### Clustering
-Sklearn's Kprototypes is a combination of KMeans and KModes. It's used for clustering a mix of numeric and categorical features. When fitting, KPrototypes takes the categorical indicies as an argument and clusters accordingly.
+Sklearn's Kprototypes is a combination of KMeans and KModes. It's used for clustering a mix of numeric and categorical features. When fitting, KPrototypes takes the categorical indicies as an argument and clusters accordingly. KModes was another option, however initial results were not as interpretable.
 
 ```python
 categorical_indicies = [1,2,3,4,5,6,7,8,9]
@@ -38,7 +41,9 @@ def get_cluster_labels(k):
   return labels
 ```
 
+
 ### Ideal # of Clusters
+Several methods were used to inform the ideal number of clusters. Although there was no clear elbow, and silhouette score continues to increase with k, I found points of interest at K=8 and K=9. PCA was used to visualize the data with cluster labels assigned to see clusters by color. Ultimately, I concluded 9 was the optimal number of clusters.
 
 ##### Elbow Curve
 <img src= 'images/thursday_elbow_plot.png' width="800">
@@ -51,7 +56,7 @@ def get_cluster_labels(k):
 
 
 ### Clusters
-To interpret cluster features, I added a label column to the original features dataframe, grouped by cluster, and aggregated column-wise by the mean.
+To interpret clusters by feature, I labels to the original feature matrix, grouped by cluster, and aggregated by the mean.
 
 |   Cluster|   Number of  Visits |   Social Referral |   Device |   Organic |   Paid |   Referral & Affiliate |   Night |   Morning |   Afternoon |   Evening |
 |----------:|-------------:|------------------:|---------:|----------:|-------:|---------------------:|--------:|----------:|------------:|----------:|
@@ -81,10 +86,11 @@ Below is a qualitative interpretation of cluster features based on the mean valu
 |Work-Break Mobile Searchers| 938 | Second Visit | No  | Some Mobile | Organic | Afternoon |
 |After-Work Blog Readers| 1452 |Second Visit | No  | Desktop | Referral/Affiliate | Evening |
 
-#### Insights
-* Referral/Affiliate coming through desktop, return users
-* paid traffic leans mobile
-* new visitors lean mobile (except for paid traffic), return visitors lean desktop
+##### Insights
+* new visitors are coming through mobile search in the evening and at night
+* paid traffic is an all-day influx of returning users that leans mobile
+* frequent visitors are coming through desktop mostly in the afternoon
+* social sites are referring through desktop in the evening
 
 ### Cluster Performance
 To see how each cluster performed on the site, I created a 'Y' table from the original query and added some custom metrics.
@@ -106,19 +112,21 @@ Y['conversion_value'] = Y['revenue'] / Y['num_transactions']
 | Work-Break Blog Readers             |   1268 |        14.41 |           9.08 |          2.87 |  51397.1  |              0.27 |             147.48 |
 | Work-Break Mobile Searchers         |    938 |        13    |           9.01 |          2.2  |  11962    |              0.13 |              96.99 |
 
-#### Insights
-
-* all mobile clusters have lowest conversion rate
-* new visitors lean mobile (except for paid traffic), return visitors lean desktop
-* high frequency visitors are more likely to purchase
-* mobile ads have low conversion Rate, purchase value?, should advertise more expensive things
-* Blog readership has high
-
 
 <img src= 'images/conversion_rate.png' width="700">
 <img src= 'images/conversion_value.png' width="700">
 
+##### Insights
+
+* 25% of afternoon & evening 'Blog Readers' are converting and spending
+  * consider sponsored blog posts and promoting in the afternoon
+* Paid Traffic has a low conversion rate
+  * optimize ads for mobile
+* Social sites are referring high conversion value customers between midnight-6am
+  * consider paid social ads on late-night schedule
 
 ### Future Work
-
-### Conclusion
+* Feature engineering
+* Experiment with Kmodes
+* EDA - products purchased, location of users, day of week, seasonality
+* Supervised learning - predict actions on site, conversion value
