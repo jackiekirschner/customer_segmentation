@@ -30,11 +30,11 @@ unique traffic source for referral/affiliate
 Sklearn's Kprototypes is a combination of KMeans and KModes. It's used for clustering a mix of numeric and categorical features. When fitting, KPrototypes takes the categorical indicies as an argument and clusters accordingly.
 
 ```python
-categoricals_indicies = [1,2,3,4,5,6,7,8,9]
+categorical_indicies = [1,2,3,4,5,6,7,8,9]
 
 def get_cluster_labels(k):
   kproto = kprototypes.KPrototypes(n_clusters=k, init='Huang', max_iter=100)
-  labels = kproto.fit_predict(X_scaled, categorical=categoricals_indicies)
+  labels = kproto.fit_predict(X_scaled, categorical=categorical_indicies)
   return labels
 ```
 
@@ -50,10 +50,10 @@ def get_cluster_labels(k):
 <img src= 'images/thurs_silouette_score.png' width="400">
 
 
-### Cluster Features
+### Clusters
 To interpret cluster features, I added a label column to the original features dataframe, grouped by cluster, and aggregated column-wise by the mean.
 
-|   cluster |   num visits |   social referral |   device |   organic |   paid |   referral/affiliate |   night |   morning |   afternoon |   evening |
+|   Cluster|   Number of  Visits |   Social Referral |   Device |   Organic |   Paid |   Referral & Affiliate |   Night |   Morning |   Afternoon |   Evening |
 |----------:|-------------:|------------------:|---------:|----------:|-------:|---------------------:|--------:|----------:|------------:|----------:|
 |         0 |         1.99 |              0.02 |     0.73 |      0.1  |   0.85 |                 0.05 |    0.23 |      0.24 |        0.2  |      0.22 |
 |         1 |         1.48 |              0    |     0.37 |      0.95 |   0.05 |                 0    |    0.98 |      0.01 |        0    |      0    |
@@ -76,8 +76,8 @@ Below is a qualitative interpretation of cluster features based on the mean valu
 |Work-Break Blog Readers | 1268 | Second Visit | No | Desktop | Referral/Affiliate | Afternoon |
 |New After-Work Mobile Searchers | 1461 | New Visitor |  No | Some Mobile | Organic | Evening |
 |Insomniac Social Blog Readers | 780 | 2-3 Visits | Some Social Referral  | Desktop | Referral/Affiliate | Night
-|Very Indecisive Work-Break Browsers| 5 | Very Frequent Visitor | No | Desktop | Organic & Referral/Affiliate | Mostly Afternoon, Not AM |
-|Indecisive Work-Break Browsers| 72 | Frequent Visitor | No | Desktop | Referral/Affiliate | Mostly Afternoon, Not AM |
+|Indecisive Work-Break Browsers| 5 | Very Frequent Visitor | No | Desktop | Organic & Referral/Affiliate | Mostly Afternoon, Not AM |
+|Low Funnel Work-Break Browsers| 72 | Frequent Visitor | No | Desktop | Referral/Affiliate | Mostly Afternoon, Not AM |
 |Work-Break Mobile Searchers| 938 | Second Visit | No  | Some Mobile | Organic | Afternoon |
 |After-Work Blog Readers| 1452 |Second Visit | No  | Desktop | Referral/Affiliate | Evening |
 
@@ -87,24 +87,24 @@ Below is a qualitative interpretation of cluster features based on the mean valu
 * new visitors lean mobile (except for paid traffic), return visitors lean desktop
 
 ### Cluster Performance
-To see how each cluster performed on the site, I created a 'Y' dataframe from the original query and added some columns.
+To see how each cluster performed on the site, I created a 'Y' table from the original query and added some custom metrics.
 
 ```python
-Y['conversion_rate'] = Y['num_transactions'] / Y['num_visits']
+Y['conversion_rate'] = Y['num_transactions'] / Y['cluster_size']
 Y['conversion_value'] = Y['revenue'] / Y['num_transactions']
 ```
 
-|   cluster |   page_views |   time_on_site |   num_visits |   num_transactions |   revenue |   action_type |   conversion_rate |   conversion_value |   size |
-|----------:|-------------:|---------------:|-------------:|-------------------:|----------:|--------------:|------------------:|-------------------:|-------:|
-|         0 |        12.17 |           7.8  |       645.58 |              25    |   1951.52 |          1.82 |              0.04 |              78.06 |    324 |
-|         1 |        12.82 |           7.57 |      1399.11 |              77    |   5056.15 |          1.91 |              0.06 |              65.66 |    948 |
-|         2 |        14.41 |           9.08 |      2662.91 |             348.5  |  51397.1  |          2.87 |              0.13 |             147.48 |   1268 |
-|         3 |        12.6  |           8.34 |      2006.35 |             138.67 |  15215.2  |          1.92 |              0.07 |             109.73 |   1461 |
-|         4 |        14.33 |           8.73 |      2015.97 |             190    |  16243.4  |          2.75 |              0.09 |              85.49 |    780 |
-|         5 |        15.28 |          15.2  |       788.19 |               2    |    114.58 |          3.4  |              0    |              57.29 |      5 |
-|         6 |        16.27 |          12.32 |      1922.67 |              22    |   7813.41 |          3.08 |              0.01 |             355.15 |     72 |
-|         7 |        13    |           9.01 |      1590.4  |             123.33 |  11962    |          2.2  |              0.08 |              96.99 |    938 |
-|         8 |        14.4  |           8.88 |      3326.27 |             401.67 |  53081.4  |          2.91 |              0.12 |             132.15 |   1452 |
+| Cluster Name                        |   Size |   Page Views |   Time on Site |   Action Type |   Revenue |  Conversion Rate |   Conversion Value |
+|:------------------------------------|-------:|-------------:|---------------:|--------------:|----------:|------------------:|-------------------:|
+| After-Work Blog Readers             |   1452 |        14.4  |           8.88 |          2.91 |  53081.4  |              0.28 |             132.15 |
+| Dynamic Mobile Ad Clickers          |    324 |        12.17 |           7.8  |          1.82 |   1951.52 |              0.08 |              78.06 |
+| Low Funnel Work-Break Browsers      |     72 |        16.27 |          12.32 |          3.08 |   7813.41 |              0.31 |             355.15 |
+| Insomniac Social Blog Readers       |    780 |        14.33 |           8.73 |          2.75 |  16243.4  |              0.24 |              85.49 |
+| New After-Work Mobile Searchers     |   1461 |        12.6  |           8.34 |          1.92 |  15215.2  |              0.09 |             109.73 |
+| New Insomniac Mobile Searchers      |    948 |        12.82 |           7.57 |          1.91 |   5056.15 |              0.08 |              65.66 |
+| Indecisive Work-Break Browsers |      5 |        15.28 |          15.2  |          3.4  |    114.58 |              0.4  |              57.29 |
+| Work-Break Blog Readers             |   1268 |        14.41 |           9.08 |          2.87 |  51397.1  |              0.27 |             147.48 |
+| Work-Break Mobile Searchers         |    938 |        13    |           9.01 |          2.2  |  11962    |              0.13 |              96.99 |
 
 #### Insights
 
@@ -113,6 +113,8 @@ Y['conversion_value'] = Y['revenue'] / Y['num_transactions']
 * high frequency visitors are more likely to purchase
 * mobile ads have low conversion Rate, purchase value?, should advertise more expensive things
 * Blog readership has high
+
+
 <img src= 'images/conversion_rate.png' width="700">
 <img src= 'images/conversion_value.png' width="700">
 

@@ -143,9 +143,9 @@ def plot_PCA(num_clusters, num_components):
     plt.show()
 
 
-plot_elbow_curve(max_range=5)
-plot_silhouette_score(max_range=5)
-plot_PCA(num_clusters=9,num_components=3)
+# plot_elbow_curve(max_range=5)
+# plot_silhouette_score(max_range=5)
+# plot_PCA(num_clusters=9,num_components=3)
 # conclude that ideal k = 9
 
 # add cluster labels to original feature matrix
@@ -162,50 +162,54 @@ cluster_feature_means = X.groupby(['cluster']).mean()
 # % mobile vs. Desktop
 # % tables print
 
+# device_counts = dfQuery.loc['mean()
+# dfQuery.loc[('referral', 'affiliate')].sum()
 '''EDA by Cluster'''
 # create 'Y' table to see cluster performance on site
 
 # remove from y: num_visits	num_transactions revenue
 # change new columns to grab from other dataframe
 
-# Y = dfQuery[['page_views', 'time_on_site', 'num_visits', 'num_transactions', 'revenue','action_type']]
-# Y['cluster'] = labels
-#
-# # assign cluster names based on interpretations
-# cluster_names = ['Dynamic Mobile Ad Clickers','New Insomniac Mobile Searchers', 'Work-Break Blog Readers', 'New After-Work Mobile Searchers', 'Insomniac Social Blog Readers', 'Very Indecisive Work-Break Browsers', 'Indecisive Work-Break Browsers', 'Work-Break Mobile Searchers', 'After-Work Blog Readers']
-#
-# Y['cluster_name'] = [cluster_names[i] for i in labels]
-#
-# cluster_sizes = Y.cluster_name.value_counts()
-#
-# Y = Y.groupby('cluster_name').agg({'page_views':'mean','time_on_site':'mean', 'num_visits': 'sum', 'num_transactions':'sum','revenue': 'sum', 'action_type': 'mean'})
-#
-# Y['size'] = cluster_sizes.iloc[:]
-#
-# # create new performace metric columns
-# Y['conversion_rate'] = Y['num_transactions'] / Y['size']
-# Y['conversion_value'] = Y['revenue'] / Y['num_transactions']
-#
-#
-# # plot conversion rate by cluster
-# cr = Y.xs('conversion_rate', axis=1)
-# plt.figure(figsize =(11,7))
-# ax1 = cr.plot(kind='bar', title='Conversion Rate')
-# plt.xticks(rotation = 15, fontsize = 8)
-# plt.grid(True)
-# plt.savefig('../images/conversion_rate.png')
-# plt.show()
-#
-#
-# # conversion value by cluster
-# cv = Y.xs('conversion_value', axis=1)
-# plt.figure(figsize =(11,7))
-# cv.plot(kind='bar', title='Conversion Value')
-# plt.xticks(rotation = 15, fontsize = 8)
-# plt.grid(True)
-# plt.savefig('../images/conversion_value.png')
-# plt.show()
+Y = dfQuery[['page_views', 'time_on_site', 'num_visits', 'num_transactions', 'revenue','action_type']]
+Y['cluster'] = labels
 
-# # print dataframe tables
+# assign cluster names based on interpretations
+cluster_names = ['Dynamic Mobile Ad Clickers','New Insomniac Mobile Searchers', 'Work-Break Blog Readers', 'New After-Work Mobile Searchers', 'Insomniac Social Blog Readers', 'Indecisive Work-Break Browsers', 'Low Funnel Work-Break Browsers', 'Work-Break Mobile Searchers', 'After-Work Blog Readers']
+
+Y['cluster_name'] = [cluster_names[i] for i in labels]
+
+cluster_sizes = Y.cluster_name.value_counts()
+
+Y = Y.groupby('cluster_name').agg({'page_views':'mean','time_on_site':'mean', 'num_visits': 'sum', 'num_transactions':'sum','revenue': 'sum', 'action_type': 'mean'})
+
+Y['size'] = cluster_sizes.iloc[:]
+
+# create new performace metric columns
+Y['conversion_rate'] = Y['num_transactions'] / Y['size']
+Y['conversion_value'] = Y['revenue'] / Y['num_transactions']
+
+readmeY = Y[['size','page_views','time_on_site','action_type','revenue', 'conversion_rate', 'conversion_value']].copy()
+
+# plot conversion rate by cluster
+cr = Y.xs('conversion_rate', axis=1)
+plt.figure(figsize =(11,7))
+ax1 = cr.plot(kind='bar', title='Conversion Rate - Percent of Visitors that Purchase')
+plt.xticks(rotation = 15, fontsize = 8)
+plt.grid(True)
+plt.savefig('../images/conversion_rate.png')
+plt.show()
+
+
+# conversion value by cluster
+cv = Y.xs('conversion_value', axis=1)
+plt.figure(figsize =(11,7))
+cv.plot(kind='bar', title='Conversion Value - Average Price of Items Purchased')
+plt.xticks(rotation = 15, fontsize = 8)
+plt.ylabel('Dollars')
+plt.grid(True)
+plt.savefig('../images/conversion_value.png')
+plt.show()
+
+# print dataframe tables
 # print(tabulate(means.round(2), headers='keys', tablefmt='pipe'))
-# print(tabulate(Y.round(2), headers='keys', tablefmt='pipe'))
+print(tabulate(readmeY.round(2), headers='keys', tablefmt='pipe'))
