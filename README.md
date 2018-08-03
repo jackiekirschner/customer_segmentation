@@ -25,8 +25,7 @@ Data for this project came from the [Google Merchandise online store](https://sh
 ### EDA
 <img src= 'images/EDA_query.png' width="800">
 
-<img src= 'images/EDA_medium.png' width="400">
-<img src= 'images/EDA_dtof.png' width="400" >
+<img src= 'images/EDA_medium.png' width="350"><img src= 'images/EDA_dtof.png' width="350" >
 
 
 ### Clustering
