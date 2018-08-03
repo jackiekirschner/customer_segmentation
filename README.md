@@ -4,7 +4,7 @@
 <img src= 'images/merch_store.png'>
 
 ### Question
-Can website sessions be clustered by how and when users arrive at the site? If so, how can clusters be used to inform marketing decisions?  
+Can website sessions be clustered by how and when users arrive at the site? If so, how can clusters inform marketing decisions?  
 
 ### Data
 I used data from the Google Merchandise online store. https://shop.googlemerchandisestore.com/ Google Analytics data from August 1, 2016 - August 1, 2017 (>200,000 web sessions) is publicly available on Google Big Query. I used SQL to query 4 months of website sessions, where one row represents one session.
@@ -21,36 +21,37 @@ sql query here
 * Social referral - driven from social media or not
 * Time of day – morning, afternoon, evening or night
 
+### EDA
+
+Counts of Features being clustered
+unique traffic source for referral/affiliate
+
 ### Clustering
 Sklearn's Kprototypes is a combination of KMeans and KModes. It's used for clustering a mix of numeric and categorical features. When fitting, KPrototypes takes the categorical indicies as an argument and clusters accordingly.
 
 ```python
-def get_labels(k):
-  init = 'Huang'
-  n_clusters = 8
-  max_iter = 100
+categoricals_indicies = [1,2,3,4,5,6,7,8,9]
 
-  kproto = kprototypes.KPrototypes(n_clusters=k,init=init, max_iter=max_iter)
-
-  categoricals_indicies = [1,2,3,4,5,6,7,8,9]
+def get_cluster_labels(k):
+  kproto = kprototypes.KPrototypes(n_clusters=k, init='Huang', max_iter=100)
   labels = kproto.fit_predict(X_scaled, categorical=categoricals_indicies)
   return labels
 ```
 
-### Picking Ideal # of Clusters
+### Ideal # of Clusters
 
-##### Elbow
-<img src= 'images/thursday_elbow_plot.png' width="700">
+##### Elbow Curve
+<img src= 'images/thursday_elbow_plot.png' width="800">
 
 ##### Principle Component Analysis
-<img src = 'images/8_3D_PCA.png' width="350" height="300"> <img src= 'images/9_3D_PCA.png' width="350" height="300">
+<img src = 'images/8_3D_PCA.png' width="400" height="350"> <img src= 'images/9_3D_PCA.png' width="400" height="350">
 
-##### Silouette
-<img src= 'images/thurs_silouette_score.png' width="350">
+##### Silhouette Score
+<img src= 'images/thurs_silouette_score.png' width="400">
 
 
 ### Cluster Features
-To interpret feature information about each cluster, I added a labels column to the original features dataframe, grouped by cluster, and aggregated column-wise by the mean.
+To interpret cluster features, I added a label column to the original features dataframe, grouped by cluster, and aggregated column-wise by the mean.
 
 |   cluster |   num visits |   social referral |   device |   organic |   paid |   referral/affiliate |   night |   morning |   afternoon |   evening |
 |----------:|-------------:|------------------:|---------:|----------:|-------:|---------------------:|--------:|----------:|------------:|----------:|
@@ -66,7 +67,7 @@ To interpret feature information about each cluster, I added a labels column to 
 
 
 ### Interpretation
-Below is a qualitative interpretation of cluster features based on the means of each column. Also added is column for cluster 'name' and size.
+Below is a qualitative interpretation of cluster features based on the mean value of each column. Also added is column for cluster 'name' and size.
 
 | Cluster Name | Size  |Number of Visits | Social Referral | Device | Traffic Medium | Time of Day |
 | -- |:----:| ---:| ---:|----: |:----:| ---:|
@@ -75,20 +76,22 @@ Below is a qualitative interpretation of cluster features based on the means of 
 |Work-Break Blog Readers | 1268 | Second Visit | No | Desktop | Referral/Affiliate | Afternoon |
 |New After-Work Mobile Searchers | 1461 | New Visitor |  No | Some Mobile | Organic | Evening |
 |Insomniac Social Blog Readers | 780 | 2-3 Visits | Some Social Referral  | Desktop | Referral/Affiliate | Night
-|Very Indecisive Work-Break Browsers| 5 | Very Frequent Visitor | No | Desktop | Organic & Ref/Affil | Mostly Afternoon, Not AM |
-|Indecisive Work-Break Browsers| 72 | Frequent Visitor | No | Desktop | Organic & Ref/Affil | Mostly Afternoon, Not AM |
+|Very Indecisive Work-Break Browsers| 5 | Very Frequent Visitor | No | Desktop | Organic & Referral/Affiliate | Mostly Afternoon, Not AM |
+|Indecisive Work-Break Browsers| 72 | Frequent Visitor | No | Desktop | Referral/Affiliate | Mostly Afternoon, Not AM |
 |Work-Break Mobile Searchers| 938 | Second Visit | No  | Some Mobile | Organic | Afternoon |
 |After-Work Blog Readers| 1452 |Second Visit | No  | Desktop | Referral/Affiliate | Evening |
 
-### Clustering Insights
+#### Insights
 * Referral/Affiliate coming through desktop, return users
-*
-### Cluster Performance Insights
-To see how each cluster performed on the site, I created a 'Y' dataframe with some additional columns.
+* paid traffic leans mobile
+* new visitors lean mobile (except for paid traffic), return visitors lean desktop
+
+### Cluster Performance
+To see how each cluster performed on the site, I created a 'Y' dataframe from the original query and added some columns.
 
 ```python
 Y['conversion_rate'] = Y['num_transactions'] / Y['num_visits']
-Y['avg_conversion_value'] = Y['revenue'] / Y['num_transactions']
+Y['conversion_value'] = Y['revenue'] / Y['num_transactions']
 ```
 
 |   cluster |   page_views |   time_on_site |   num_visits |   num_transactions |   revenue |   action_type |   conversion_rate |   conversion_value |   size |
@@ -102,14 +105,14 @@ Y['avg_conversion_value'] = Y['revenue'] / Y['num_transactions']
 |         6 |        16.27 |          12.32 |      1922.67 |              22    |   7813.41 |          3.08 |              0.01 |             355.15 |     72 |
 |         7 |        13    |           9.01 |      1590.4  |             123.33 |  11962    |          2.2  |              0.08 |              96.99 |    938 |
 |         8 |        14.4  |           8.88 |      3326.27 |             401.67 |  53081.4  |          2.91 |              0.12 |             132.15 |   1452 |
-* paid traffic leans mobile
+
+#### Insights
+
+* all mobile clusters have lowest conversion rate
 * new visitors lean mobile (except for paid traffic), return visitors lean desktop
-*
-
-### EDA
-
-* afternoon browsers spend more time on site
-
+* high frequency visitors are more likely to purchase
+* mobile ads have low conversion Rate, purchase value?, should advertise more expensive things
+* Blog readership has high
 <img src= 'images/conversion_rate.png' width="700">
 <img src= 'images/conversion_value.png' width="700">
 
