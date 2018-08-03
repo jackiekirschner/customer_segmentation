@@ -10,6 +10,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 from sklearn.decomposition import PCA
 from numpy.random import seed
+from tabulate import tabulate
 
 seed(5)
 
@@ -157,28 +158,42 @@ means = X.groupby(['cluster']).mean()
 '''EDA by Cluster'''
 # create 'Y' table to see cluster performance on site
 Y = dfQuery[['page_views', 'time_on_site', 'num_visits', 'num_transactions', 'revenue','action_type']]
+
 Y['cluster'] = labels
+
+# assign cluster names based on interpretations
+cluster_names = ['Dynamic Mobile Ad Clickers','New Insomniac Mobile Searchers', 'Work-Break Blog Readers', 'New After-Work Mobile Searchers', 'Insomniac Social Blog Readers', 'Very Indecisive Work-Break Browsers', 'Indecisive Work-Break Browsers', 'Work-Break Mobile Searchers', 'After-Work Blog Readers']
+
+Y['cluster_name'] = [cluster_names[i] for i in labels]
+
 
 cluster_sizes = Y.cluster.value_counts()
 
-Y = Y.groupby('cluster').agg({'page_views':'mean','time_on_site':'mean', 'num_visits': 'sum',
-'num_transactions':'sum','revenue': 'sum', 'action_type': 'mean'})
+Y = Y.groupby('cluster_name').agg({'page_views':'mean','time_on_site':'mean', 'num_visits': 'sum', 'num_transactions':'sum','revenue': 'sum', 'action_type': 'mean'})
 
+# create new performace metric columns
 Y['conversion_rate'] = Y['num_transactions'] / Y['num_visits']
 Y['conversion_value'] = Y['revenue'] / Y['num_transactions']
 
 Y['size'] = cluster_sizes.iloc[:]
 
-cluster_names = []
+
+# print(tabulate(means.round(2), headers='keys', tablefmt='pipe'))
+# print(tabulate(Y.round(2), headers='keys', tablefmt='pipe'))
 
 # plot conversion rate by cluster
 cr = Y.xs('conversion_rate', axis=1)
-cr.plot(kind='bar', title='Conversion Rate')
+plt.figure(figsize =(11,7))
+ax1 = cr.plot(kind='bar', title='Conversion Rate')
+plt.xticks(rotation = 20, fontsize = 6)
 plt.savefig('../images/conversion_rate.png')
 plt.show()
 
+
 # conversion value by cluster
 cv = Y.xs('conversion_value', axis=1)
+plt.figure(figsize =(11,7))
 cv.plot(kind='bar', title='Conversion Value')
+plt.xticks(rotation = 20, fontsize = 6)
 plt.savefig('../images/conversion_value.png')
 plt.show()
