@@ -104,10 +104,10 @@ Y['conversion_value'] = Y['revenue'] / Y['num_transactions']
 | After-Work Blog Readers             |   1452 |        14.4  |           8.88 |          2.91 |  53081.4  |              0.28 |             132.15 |
 | Dynamic Mobile Ad Clickers          |    324 |        12.17 |           7.8  |          1.82 |   1951.52 |              0.08 |              78.06 |
 | Low Funnel Work-Break Browsers      |     72 |        16.27 |          12.32 |          3.08 |   7813.41 |              0.31 |             355.15 |
-| Insomniac Social Blog Readers       |    780 |        14.33 |           8.73 |          2.75 |  16243.4  |              0.24 |              85.49 |
+| Overnight Social Blog Readers       |    780 |        14.33 |           8.73 |          2.75 |  16243.4  |              0.24 |              85.49 |
 | New After-Work Mobile Searchers     |   1461 |        12.6  |           8.34 |          1.92 |  15215.2  |              0.09 |             109.73 |
-| New Insomniac Mobile Searchers      |    948 |        12.82 |           7.57 |          1.91 |   5056.15 |              0.08 |              65.66 |
-| Indecisive Work-Break Browsers |      5 |        15.28 |          15.2  |          3.4  |    114.58 |              0.4  |              57.29 |
+| New Overnight Mobile Searchers      |    948 |        12.82 |           7.57 |          1.91 |   5056.15 |              0.08 |              65.66 |
+| Bottom Funnel Work-Break Browsers |      5 |        15.28 |          15.2  |          3.4  |    114.58 |              0.4  |              57.29 |
 | Work-Break Blog Readers             |   1268 |        14.41 |           9.08 |          2.87 |  51397.1  |              0.27 |             147.48 |
 | Work-Break Mobile Searchers         |    938 |        13    |           9.01 |          2.2  |  11962    |              0.13 |              96.99 |
 
