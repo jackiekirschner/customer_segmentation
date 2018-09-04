@@ -76,11 +76,11 @@ Below is a qualitative interpretation of cluster features based on the mean valu
 | Cluster Name | Size  |Number of Visits | Social Referral | Device | Traffic Medium | Time of Day |
 | -- |:----:| ---:| ---:|----: |:----:| ---:|
 |Dynamic Mobile Ad Clickers | 324 | Second Visit | No | Mobile | Paid | All day |
-|New Insomniac Mobile Searchers | 948 | New Visitor | No | Some Mobile | Organic | Night |
+|New Overnight Mobile Searchers | 948 | New Visitor | No | Some Mobile | Organic | Night |
 |Work-Break Blog Readers | 1268 | Second Visit | No | Desktop | Referral/Affiliate | Afternoon |
 |New After-Work Mobile Searchers | 1461 | New Visitor |  No | Some Mobile | Organic | Evening |
-|Insomniac Social Blog Readers | 780 | 2-3 Visits | Some Social Referral  | Desktop | Referral/Affiliate | Night
-|Indecisive Work-Break Browsers| 5 | Very Frequent Visitor | No | Desktop | Organic & Referral/Affiliate | Mostly Afternoon, Not AM |
+|Overnight Social Blog Readers | 780 | 2-3 Visits | Some Social Referral  | Desktop | Referral/Affiliate | Night
+|Bottom Funnel Work-Break Browsers| 5 | Very Frequent Visitor | No | Desktop | Organic & Referral/Affiliate | Mostly Afternoon, Not AM |
 |Low Funnel Work-Break Browsers| 72 | Frequent Visitor | No | Desktop | Referral/Affiliate | Mostly Afternoon, Not AM |
 |Work-Break Mobile Searchers| 938 | Second Visit | No  | Some Mobile | Organic | Afternoon |
 |After-Work Blog Readers| 1452 |Second Visit | No  | Desktop | Referral/Affiliate | Evening |
