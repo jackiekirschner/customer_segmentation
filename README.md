@@ -55,7 +55,7 @@ Several methods were used to inform the ideal number of clusters. Although there
 
 
 ### Clusters
-To interpret clusters by feature, I labels to the original feature matrix, grouped by cluster, and aggregated by the mean.
+To interpret clusters by feature, I added labels to the original feature matrix, grouped by cluster, and aggregated by the mean.
 
 | |   Number of  Visits |   Social Referral |   Device |   Organic |   Paid |   Referral & Affiliate |   Night |   Morning |   Afternoon |   Evening |
 |----------:|-------------:|------------------:|---------:|----------:|-------:|---------------------:|--------:|----------:|------------:|----------:|
