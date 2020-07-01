@@ -10,7 +10,7 @@ Successful marketing reaches the right people, at the right time, in the right p
 Can clustering be used to segment website traffic into useful personas? If so, how can the clusters inform marketing decisions?  
 
 ### Data
-Data for this project came from the [Google Merchandise online store](https://shop.googlemerchandisestore.com/) and was retrieved from [Google Big Query](https://cloud.google.com/bigquery/). One year of data (>200,000 web sessions) is publicly available as a sample dataset for potential Google Big Query customers to explore. I used SQL to query 4 months of website sessions, where one row represents one session.
+Website Analytics Data for this project came from the [Google Merchandise online store](https://shop.googlemerchandisestore.com/) and was retrieved from [Google Big Query](https://cloud.google.com/bigquery/). One year of website data (>200,000 web sessions) is publicly available as a sample dataset for potential Google BigQuery customers to explore. I used SQL to query and Python/Pandas to clean 4 months of website sessions, where one row represents one session.
 
 <img src= 'images/big_query.png'>
 
