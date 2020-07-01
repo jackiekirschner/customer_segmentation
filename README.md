@@ -1,4 +1,4 @@
-# Ecommerce Traffic Segmentation
+# Predictive User Segmentation & Digital Media Plan
 ## Unsupervised Learning – Clustering
 
 <img src= 'images/merch_store.png'>
