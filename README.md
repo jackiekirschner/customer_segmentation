@@ -22,7 +22,7 @@ Data for this project came from the [Google Merchandise online store](https://sh
 * Social referral - driven from social media or not
 * Time of day – morning, afternoon, evening or night
 
-### EDA
+### Exploratory Data Analysis
 <img src= 'images/EDA_query.png' width="800">
 
 <img src= 'images/EDA_medium.png' width="350"><img src= 'images/EDA_dtof.png' width="350" >
