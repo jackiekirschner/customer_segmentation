@@ -1,10 +1,10 @@
-# Predictive User Segmentation & Digital Media Plan
+# Predictive Customer Segmentation & Digital Media Plan
 ## Unsupervised Learning – Clustering
 
 <img src= 'images/merch_store.png'>
 
 ### Motivation
-Marketing is successful when reaching the right people, at the right time, in the right place. It's a never-ending process of learning more about potential customers and tailoring how and when to reach them. Understanding how users find your site, when they visit, and what device they use can help optimize media planning and increase ROI.
+Successful marketing reaches the right people, at the right time, in the right place. It's a never-ending process of learning more about potential customers and tailoring how and when to reach them. Understanding how users find your site, when they visit, and what device they use can help optimize media planning and increase ROI.
 
 ### Question
 Can clustering be used to segment website traffic into useful personas? If so, how can the clusters inform marketing decisions?  
